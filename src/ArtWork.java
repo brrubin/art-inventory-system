@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 public class ArtWork {
     public static void main(String[] args) {
@@ -11,6 +12,19 @@ public class ArtWork {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null); // Centers the window on the device
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5,5,5,5);
@@ -22,7 +36,7 @@ public class ArtWork {
         gbc.gridy = 0;
         gbc.gridwidth = 4;
         JLabel titleLabel = new JLabel("Art Inventory System");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24)); //Changes the font and size of my title
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         frame.add(titleLabel, gbc);
 
