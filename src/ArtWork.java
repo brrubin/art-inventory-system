@@ -148,14 +148,79 @@ public class ArtWork {
                     return;
                 }
 
+                String yearInput = JOptionPane.showInputDialog(
+                        frame,
+                        "Enter year:",
+                        "Add Artwork",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+
+                Integer yearValue = null;
+                if(yearInput != null && !yearInput.trim().isEmpty()){
+                    try{
+                        yearValue = Integer.parseInt(yearInput.trim());
+                    } catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(frame, "Year must be a number");
+                        return;
+                    }
+                } else if (yearInput == null){
+                    return;
+                }
+                String medium = JOptionPane.showInputDialog(
+                        frame,
+                        "Enter medium:",
+                        "Add Artwork",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                if (medium == null){
+                    return;
+                }
+                medium = medium.trim();
+                if(medium.isEmpty()){
+                    medium = null;
+                }
+
+                String location = JOptionPane.showInputDialog(
+                        frame,
+                        "Enter location:",
+                        "Add Artwork",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                if(location == null){
+                    return;
+                }
+                location = location.trim();
+                if(location.isEmpty()){
+                    location = null;
+                }
+
+                String priceInput = JOptionPane.showInputDialog(
+                        frame,
+                        "Enter price:",
+                        "Add Artwork",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+
+                Double priceValue = null;
+                if(priceInput != null && !priceInput.trim().isEmpty()){
+                    try{
+                        priceValue = Double.parseDouble(priceInput.trim());
+                    } catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(frame, "Price must be a valid number.");
+                        return;
+                    }
+                }else if (priceInput == null){
+                    return;
+                }
+
                 Object[] row = new Object[]{
                         nextId[0],
                         title.trim(),
                         artist.trim(),
-                        null,   // Year
-                        null,   // Medium
-                        null,   // Location
-                        null    // Price
+                        yearValue,
+                        medium,
+                        location,
+                        priceValue
                 };
                 nextId[0]++;
 
