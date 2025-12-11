@@ -13,19 +13,6 @@ public class ArtWork {
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null); // Centers the window on the device
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5,5,5,5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
@@ -35,12 +22,14 @@ public class ArtWork {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 4;
+        gbc.anchor = GridBagConstraints.CENTER;
         JLabel titleLabel = new JLabel("Art Inventory System");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24)); //Changes the font and size of my title
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         frame.add(titleLabel, gbc);
 
         gbc.gridwidth = 1; // reset
+        gbc.anchor = GridBagConstraints.NORTHWEST;
 
         // Search Label
 
@@ -70,26 +59,43 @@ public class ArtWork {
         JButton clearButton = new JButton("Clear");
         frame.add(clearButton, gbc);
 
+        gbc.gridy = 2; // This places these buttons on row 2
+
         // Add artwork button
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
         JButton addButton = new JButton("Add Artwork");
         frame.add(addButton, gbc);
 
         // Edit selected button
 
         gbc.gridx = 1;
-        gbc.gridy = 2;
         JButton editButton = new JButton("Edit Selected");
         frame.add(editButton, gbc);
 
         // Delete selected button
 
         gbc.gridx = 2;
-        gbc.gridy = 2;
         JButton deleteButton = new JButton("Delete Selected");
         frame.add(deleteButton, gbc);
+
+        gbc.gridy = 3;
+
+        // Save button
+
+        gbc.gridx = 0;
+        JButton saveButton = new JButton("Save");
+        frame.add(saveButton, gbc);
+
+        // Load button
+        gbc.gridx = 1;
+        JButton loadButton = new JButton("Load");
+        frame.add(loadButton, gbc);
+
+        //Exit button
+        gbc.gridx = 2;
+        JButton exitButton = new JButton("Exit");
+        frame.add(exitButton, gbc);
 
         // Table with columns: ID, Title, Artist, Year, Medium, Location, Price
 
@@ -107,7 +113,7 @@ public class ArtWork {
 
         JScrollPane scrollPane = new JScrollPane(table);
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth =4;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
@@ -117,7 +123,7 @@ public class ArtWork {
         // Status label at the bottom
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0;
