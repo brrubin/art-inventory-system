@@ -183,8 +183,25 @@ public class ArtWork {
                         JOptionPane.showMessageDialog(frame, "Year must be a number");
                         return;
                     }
-                } else if (yearInput == null){
-                    return;
+
+                    yearInput = yearInput.trim();
+
+                    if(yearInput.isEmpty()){
+                        yearValue = null;
+                        break;
+                    }
+
+                    try{
+                        yearValue = Integer.parseInt(yearInput);
+                        break;
+                    } catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                "Year must be a valid number",
+                                "Input error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
                 }
                 String medium = JOptionPane.showInputDialog(
                         frame,
