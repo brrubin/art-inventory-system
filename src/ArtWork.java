@@ -489,6 +489,24 @@ public class ArtWork {
             }
         });
 
+        // Make the Exit button work with an action listener
+
+        exitButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                int choice = JOptionPane.showConfirmDialog(
+                        frame,
+                        "Are you sure you want to exit?",
+                        "Exit",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if(choice == JOptionPane.YES_OPTION){
+                    frame.dispose(); // this closes the window
+                }
+            }
+        });
+
         frame.setVisible(true); // Makes sure the GUI is visible
     }
 
