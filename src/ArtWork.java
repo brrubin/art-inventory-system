@@ -8,7 +8,7 @@ import java.io.*;
 public class ArtWork {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Art-Inventory-System"); // Title of GUI
-        frame.setSize(1000, 800); //Size of window
+        frame.setSize(850, 550); //Size of window
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null); // Centers the window on the device
@@ -18,7 +18,6 @@ public class ArtWork {
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
         // Title Label
-
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 4;
@@ -32,73 +31,113 @@ public class ArtWork {
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
         // Search Label
-
         gbc.gridx = 0;
         gbc.gridy = 1;
         JLabel searchLabel = new JLabel("Search:");
-        frame.add(searchLabel, gbc);
 
         // Search TextField
-
         gbc.gridx = 1;
         gbc.gridy = 1;
         JTextField searchTextField = new JTextField(20);
-        frame.add(searchTextField, gbc);
 
         // Search Button
-
         gbc.gridx = 2;
         gbc.gridy = 1;
         JButton searchButton = new JButton("Search");
-        frame.add(searchButton, gbc);
 
         // Clear Button
-
         gbc.gridx = 3;
         gbc.gridy = 1;
         JButton clearButton = new JButton("Clear");
-        frame.add(clearButton, gbc);
 
         gbc.gridy = 2; // This places these buttons on row 2
 
         // Add artwork button
-
         gbc.gridx = 0;
         JButton addButton = new JButton("Add Artwork");
-        frame.add(addButton, gbc);
 
         // Edit selected button
-
         gbc.gridx = 1;
         JButton editButton = new JButton("Edit Selected");
-        frame.add(editButton, gbc);
 
         // Delete selected button
-
         gbc.gridx = 2;
         JButton deleteButton = new JButton("Delete Selected");
-        frame.add(deleteButton, gbc);
 
         gbc.gridy = 3;
-        
-        // Save button
 
+        // Save button
         gbc.gridx = 0;
         JButton saveButton = new JButton("Save");
-        frame.add(saveButton, gbc);
 
         // Load button
         gbc.gridx = 1;
         JButton loadButton = new JButton("Load");
-        frame.add(loadButton, gbc);
 
         //Exit button
         gbc.gridx = 2;
         JButton exitButton = new JButton("Exit");
-        frame.add(exitButton, gbc);
+
+        JPanel managePanel = new JPanel(new GridBagLayout());
+        JPanel searchPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints m = new GridBagConstraints();
+        GridBagConstraints s = new GridBagConstraints();
+
+        m.insets = new Insets(5,5,5,5);
+        m.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weighty = 0;
+
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.weightx = 0.5;
+        frame.add(managePanel, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 0.5;
+        frame.add(searchPanel, gbc);
+        m.gridx = 0;
+
+        m.gridy = 0;
+        managePanel.add(addButton, m);
+
+        m.gridy = 1;
+        managePanel.add(editButton, m);
+
+        m.gridy = 2;
+        managePanel.add(deleteButton, m);
+
+        m.gridy = 3;
+        managePanel.add(saveButton, m);
+
+        m.gridy = 4;
+        managePanel.add(loadButton, m);
+
+        m.gridy = 5;
+        managePanel.add(exitButton, m);
+
+        s.insets = new Insets(5,5,5,5);
+        s.fill = GridBagConstraints.HORIZONTAL;
+        s.gridx = 0;
+
+        s.gridy = 0;
+        searchPanel.add(new JLabel("Search"), s);
+
+        s.gridy = 1;
+        searchPanel.add(searchTextField, s);
+
+        s.gridy = 2;
+        searchPanel.add(searchButton, s);
+
+        s.gridy = 3;
+        searchPanel.add(clearButton, s);
+
 
         // Table with columns: ID, Title, Artist, Year, Medium, Location, Price
-
         String[] columnNames = {"ID", "Title", "Artist", "Year", "Medium", "Location", "Price"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -110,10 +149,9 @@ public class ArtWork {
         JTable table = new JTable(tableModel);
 
         // JScrollPane for table
-
         JScrollPane scrollPane = new JScrollPane(table);
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 2;
         gbc.gridwidth =4;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
@@ -121,9 +159,8 @@ public class ArtWork {
         frame.add(scrollPane, gbc);
 
         // Status label at the bottom
-
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 3;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0;
@@ -132,11 +169,9 @@ public class ArtWork {
         frame.add(statusLabel, gbc);
 
         // ID generator
-
         final int[] nextId ={1};
 
         // Add artwork using JOptionPane
-
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -168,19 +203,17 @@ public class ArtWork {
                     return;
                 }
 
-                String yearInput = JOptionPane.showInputDialog(
-                        frame,
-                        "Enter year:",
-                        "Add Artwork",
-                        JOptionPane.PLAIN_MESSAGE
-                );
-// hello
                 Integer yearValue = null;
-                if(yearInput != null && !yearInput.trim().isEmpty()){
-                    try{
-                        yearValue = Integer.parseInt(yearInput.trim());
-                    } catch (NumberFormatException ex){
-                        JOptionPane.showMessageDialog(frame, "Year must be a number");
+
+                while (true){
+                    String yearInput = JOptionPane.showInputDialog(
+                            frame,
+                            "Enter year:",
+                            "Add Artwork",
+                            JOptionPane.PLAIN_MESSAGE
+                    );
+
+                    if (yearInput == null){
                         return;
                     }
 
@@ -203,6 +236,7 @@ public class ArtWork {
                         );
                     }
                 }
+
                 String medium = JOptionPane.showInputDialog(
                         frame,
                         "Enter medium:",
@@ -267,7 +301,6 @@ public class ArtWork {
         });
 
         // Edit selected row using JOptionPane (all fields)
-
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -284,7 +317,6 @@ public class ArtWork {
                 }
 
                 // Get current values from the table
-
                 String currentTitle = (tableModel.getValueAt(selectedRow, 1) + "");
                 String currentArtist = (tableModel.getValueAt(selectedRow, 2) + "");
                 Object currentYearObj = tableModel.getValueAt(selectedRow, 3);
@@ -298,7 +330,6 @@ public class ArtWork {
                 String currentPrice = currentPriceObj == null ? "" : currentPriceObj.toString();
 
                 // Title
-
                 String newTitle = JOptionPane.showInputDialog(
                         frame,
                         "Edit title:",
@@ -313,7 +344,6 @@ public class ArtWork {
                 }
 
                 // Artist
-
                 String newArtist = JOptionPane.showInputDialog(
                         frame,
                         "Edit artist:",
@@ -328,7 +358,6 @@ public class ArtWork {
                 }
 
                 // Year
-
                 String newYearInput = JOptionPane.showInputDialog(
                         frame,
                         "Edit year (optional):",
@@ -345,7 +374,6 @@ public class ArtWork {
                 }
 
                 //Medium
-
                 String newMedium = JOptionPane.showInputDialog(
                         frame,
                         "Edit medium (optional):",
@@ -356,7 +384,6 @@ public class ArtWork {
                 }
 
                 //Location
-
                 String newLocation = JOptionPane.showInputDialog(
                         frame,
                         "Edit location (optional):",
@@ -367,7 +394,6 @@ public class ArtWork {
                 }
 
                 // Price
-
                 String newPriceInput = JOptionPane.showInputDialog(
                         frame,
                         "Edit price (optional):",
@@ -384,7 +410,6 @@ public class ArtWork {
                 }
 
                 // write everything back to the table
-
                 tableModel.setValueAt(newTitle.trim(), selectedRow, 1);
                 tableModel.setValueAt(newArtist.trim(), selectedRow, 2);
                 tableModel.setValueAt(newYearValue, selectedRow, 3);
@@ -395,7 +420,6 @@ public class ArtWork {
         });
 
         // Delete selected row
-
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -425,7 +449,6 @@ public class ArtWork {
         });
 
         // Filter table by title/artist/medium
-
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -436,7 +459,6 @@ public class ArtWork {
                 }
 
                 // highlight the first matching row
-
                 for (int i = 0; i < tableModel.getRowCount(); i++) {
                     String title = (tableModel.getValueAt(i, 1) + "").toLowerCase();
                     String artist = (tableModel.getValueAt(i, 2) + "").toLowerCase();
@@ -459,7 +481,6 @@ public class ArtWork {
         });
 
         // Reset table on clear
-
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
