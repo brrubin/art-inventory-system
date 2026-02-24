@@ -339,10 +339,10 @@ public class ArtWork {
                 Object currentLocationObj = tableModel.getValueAt(selectedRow, 5);
                 Object currentPriceObj = tableModel.getValueAt(selectedRow, 6);
 
-                String currentYear = currentYearObj == null ? "" : currentYearObj.toString();
-                String currentMedium = currentMediumObj == null ? "" : currentMediumObj.toString();
-                String currentLocation = currentLocationObj == null ? "" : currentLocationObj.toString();
-                String currentPrice = currentPriceObj == null ? "" : currentPriceObj.toString();
+                String currentYear = currentYearObj == null? "": currentYearObj.toString();
+                String currentMedium = currentMediumObj == null? "": currentMediumObj.toString();
+                String currentLocation = currentLocationObj == null? "": currentLocationObj.toString();
+                String currentPrice = currentPriceObj == null? "": currentPriceObj.toString();
 
                 // Title
                 String newTitle = JOptionPane.showInputDialog(
@@ -372,19 +372,36 @@ public class ArtWork {
                     return;
                 }
 
-                // Year
-                String newYearInput = JOptionPane.showInputDialog(
-                        frame,
-                        "Edit year (optional):",
-                        currentYear
-                );
-                Integer newYearValue = null;
-                if (newYearInput != null && !newYearInput.trim().isEmpty()) {
-                    try {
-                        newYearValue = Integer.parseInt(newYearInput.trim());
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(frame, "Year must be a number.");
+                Integer newYearValue = null; // Just made an exception handle for editing the year
+
+                while(true){
+                    String newYearInput = JOptionPane.showInputDialog(
+                            frame,
+                            "Edit year (optional):",
+                            currentYear
+                    );
+
+                    if (newYearInput == null){
                         return;
+                    }
+
+                    newYearInput = newYearInput.trim();
+
+                    if (newYearInput.isEmpty()){
+                        newYearValue = null;
+                        break;
+                    }
+
+                    try{
+                        newYearValue = Integer.parseInt(newYearInput);
+                        break;
+                    }catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                "Year must be a valid number",
+                                "Input error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
                     }
                 }
 
