@@ -23,7 +23,7 @@ public class ArtWork {
         gbc.gridwidth = 4;
         gbc.anchor = GridBagConstraints.CENTER;
         JLabel titleLabel = new JLabel("Art Inventory System");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24)); //Changes the font and size of my title
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20)); //Changes the font and size of my title
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         frame.add(titleLabel, gbc);
 
@@ -265,23 +265,38 @@ public class ArtWork {
                     location = null;
                 }
 
-                String priceInput = JOptionPane.showInputDialog(
-                        frame,
-                        "Enter price:",
-                        "Add Artwork",
-                        JOptionPane.PLAIN_MESSAGE
-                );
+                Double priceValue = null; // Price Validation was just fixed
 
-                Double priceValue = null;
-                if(priceInput != null && !priceInput.trim().isEmpty()){
-                    try{
-                        priceValue = Double.parseDouble(priceInput.trim());
-                    } catch (NumberFormatException ex){
-                        JOptionPane.showMessageDialog(frame, "Price must be a valid number.");
+                while (true){
+                    String priceInput = JOptionPane.showInputDialog(
+                            frame,
+                            "Enter price:",
+                            "Add Artwork",
+                            JOptionPane.PLAIN_MESSAGE
+                    );
+
+                    if (priceInput == null){
                         return;
                     }
-                }else if (priceInput == null){
-                    return;
+
+                    priceInput = priceInput.trim();
+
+                    if (priceInput.isEmpty()){
+                        priceValue = null;
+                        break;
+                    }
+
+                    try{
+                        priceValue = Double.parseDouble(priceInput);
+                        break;
+                    } catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                "Price must be a valid number",
+                                "Input error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
                 }
 
                 Object[] row = new Object[]{
