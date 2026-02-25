@@ -17,7 +17,7 @@ public class ArtWork {
         gbc.insets = new Insets(5,5,5,5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
-        // Title Label
+        // Title Label at the top of the GUI
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 4;
@@ -425,19 +425,32 @@ public class ArtWork {
                     newLocation = currentLocation;
                 }
 
-                // Price
-                String newPriceInput = JOptionPane.showInputDialog(
-                        frame,
-                        "Edit price (optional):",
-                        currentPrice
-                );
+                // This new block of code improved the validation with edit so when something is invalid their is now an exception for
                 Double newPriceValue = null;
-                if (newPriceInput != null && !newPriceInput.trim().isEmpty()) {
-                    try {
-                        newPriceValue = Double.parseDouble(newPriceInput.trim());
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(frame, "Price must be a valid number.");
+                while(true){
+                    String newPriceInput = JOptionPane.showInputDialog(
+                            frame,
+                            "Edit price (optional):",
+                            currentPrice
+                    );
+                    if (newPriceInput == null){
                         return;
+                    }
+                    newPriceInput = newPriceInput.trim();
+                    if (newPriceInput.isEmpty()){
+                        newPriceValue = null;
+                        break;
+                    }
+                    try{
+                        newPriceValue = Double.parseDouble(newPriceInput);
+                        break;
+                    }catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                "Price must be a valid number.",
+                                "Input error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
                     }
                 }
 
