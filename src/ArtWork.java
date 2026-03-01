@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.plaf.nimbus.State;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -55,6 +54,89 @@ public class ArtWork {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
                     "Database error while loading:\n" + e.getMessage(),
+                    "DB Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void insertArtwork(String title, String artist, Integer year, String medium, String location, Double price){
+        String sql = "INSERT INTO artwork(title, artist, year, medium, location, price) " +
+                "VALUES (?, ?, ?, ?, ?, ?);";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setString(1,title);
+            ps.setString(2, artist);
+
+            if(year == null) ps.setNull(3, Types.INTEGER);
+            else ps.setInt(3,year);
+
+            if(medium == null) ps.setNull(4, Types.VARCHAR);
+            else ps.setString(4,medium);
+
+            if(location == null) ps.setNull(5, Types.VARCHAR);
+            else ps.setString(5,location);
+
+            if(price == null) ps.setNull(6, Types.REAL);
+            else ps.setDouble(6,price);
+
+            ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Database insert failed:\n" + e.getMessage(),
+                    "DB Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void deleteArtworkById(int id){
+        String sql = " DELETE FROM artwork WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setInt(1,id);
+            ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Database insert failed:\n" + e.getMessage(),
+                    "DB Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void updateArtworkById(int id, String title, String artist, Integer year, String medium, String location, Double price){
+        String sql = "UPDATE artwork SET title = ?, artist = ?, year = ?, medium = ?, location = ?, price = ?, WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setString(1,title);
+            ps.setString(2, artist);
+
+            if(year == null) ps.setNull(3, Types.INTEGER);
+            else ps.setInt(3,year);
+
+            if(medium == null) ps.setNull(4, Types.VARCHAR);
+            else ps.setString(4,medium);
+
+            if(location == null) ps.setNull(5, Types.VARCHAR);
+            else ps.setString(5,location);
+
+            if(price == null) ps.setNull(6, Types.REAL);
+            else ps.setDouble(6,price);
+
+            ps.setInt(7, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Database insert failed:\n" + e.getMessage(),
                     "DB Error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -188,9 +270,6 @@ public class ArtWork {
 
         loadFromDatabase(tableModel, statusLabel);
 
-        // ID generator
-        final int[] nextId ={1};
-
         // Add artwork using JOptionPane
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -318,20 +397,10 @@ public class ArtWork {
                         );
                     }
                 }
-
-                Object[] row = new Object[]{
-                        nextId[0],
-                        title.trim(),
-                        artist.trim(),
-                        yearValue,
-                        medium,
-                        location,
-                        priceValue
-                };
-                nextId[0]++;
-                tableModel.addRow(row);
-                updateStatus(statusLabel, tableModel);
+                insertArtwork(title.trim(), artist.trim(), yearValue, medium, location, priceValue);
+                loadFromDatabase(tableModel, statusLabel); // refresh table from DB
             }
+
         });
 
         // Edit selected row using JOptionPane (all fields)
@@ -349,6 +418,9 @@ public class ArtWork {
                     );
                     return;
                 }
+
+                Object idObj = tableModel.getValueAt(selectedRow, 0);
+                int id = Integer.parseInt(idObj.toString());
 
                 // Get current values from the table
                 String currentTitle = (tableModel.getValueAt(selectedRow, 1) + "");
@@ -472,14 +544,8 @@ public class ArtWork {
                         );
                     }
                 }
-
-                // write everything back to the table
-                tableModel.setValueAt(newTitle.trim(), selectedRow, 1);
-                tableModel.setValueAt(newArtist.trim(), selectedRow, 2);
-                tableModel.setValueAt(newYearValue, selectedRow, 3);
-                tableModel.setValueAt(newMedium.trim().isEmpty() ? null : newMedium.trim(), selectedRow, 4);
-                tableModel.setValueAt(newLocation.trim().isEmpty() ? null : newLocation.trim(), selectedRow, 5);
-                tableModel.setValueAt(newPriceValue, selectedRow, 6);
+                updateArtworkById(id, newTitle.trim(), newArtist.trim(), newYearValue, (newMedium.trim() .isEmpty() ? null : newMedium.trim()), (newLocation.trim().isEmpty()? null : newLocation.trim()), newPriceValue);
+                loadFromDatabase(tableModel, statusLabel);
             }
         });
 
@@ -487,7 +553,6 @@ public class ArtWork {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(
@@ -505,10 +570,13 @@ public class ArtWork {
                         "Confirm Delete",
                         JOptionPane.YES_NO_OPTION
                 );
-                if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(selectedRow);
-                    updateStatus(statusLabel, tableModel);
+                if (confirm != JOptionPane.YES_OPTION) {
+                    return;
                 }
+
+                int id = (int) tableModel.getValueAt(selectedRow, 0);
+                deleteArtworkById(id);
+                loadFromDatabase(tableModel, statusLabel);
             }
         });
 
@@ -553,7 +621,12 @@ public class ArtWork {
             }
         });
 
-        // Make the Exit button work with an action listener
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadFromDatabase(tableModel, statusLabel);
+            }
+        });
 
         exitButton.addActionListener(new ActionListener(){
             @Override
@@ -570,7 +643,6 @@ public class ArtWork {
                 }
             }
         });
-
         frame.setVisible(true); // Makes sure the GUI is visible
     }
 
