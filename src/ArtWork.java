@@ -3,9 +3,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
 
 public class ArtWork {
+
+    private static final String DB_URL = "jdbc:sqlite:db/art_inventory.db";
+
     public static void main(String[] args) {
         JFrame frame = new JFrame("Art-Inventory-System"); // Title of GUI
         frame.setSize(850, 550); //Size of window
@@ -30,53 +32,15 @@ public class ArtWork {
         gbc.gridwidth = 1; // reset
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
-        // Search Label
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        JLabel searchLabel = new JLabel("Search:");
-
-        // Search TextField
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        JTextField searchTextField = new JTextField(20);
-
-        // Search Button
-        gbc.gridx = 2;
-        gbc.gridy = 1;
-        JButton searchButton = new JButton("Search");
-
-        // Clear Button
-        gbc.gridx = 3;
-        gbc.gridy = 1;
-        JButton clearButton = new JButton("Clear");
-
-        gbc.gridy = 2; // This places these buttons on row 2
-
-        // Add artwork button
-        gbc.gridx = 0;
-        JButton addButton = new JButton("Add Artwork");
-
-        // Edit selected button
-        gbc.gridx = 1;
-        JButton editButton = new JButton("Edit Selected");
-
-        // Delete selected button
-        gbc.gridx = 2;
-        JButton deleteButton = new JButton("Delete Selected");
-
-        gbc.gridy = 3;
-
-        // Save button
-        gbc.gridx = 0;
-        JButton saveButton = new JButton("Save");
-
-        // Load button
-        gbc.gridx = 1;
-        JButton loadButton = new JButton("Load");
-
-        //Exit button
-        gbc.gridx = 2;
-        JButton exitButton = new JButton("Exit");
+        JTextField searchTextField = new JTextField(20); // Search TextField
+        JButton searchButton = new JButton("Search");  // Search Button
+        JButton clearButton = new JButton("Clear");  // Clear Button
+        JButton addButton = new JButton("Add Artwork");  // Add artwork button
+        JButton editButton = new JButton("Edit Selected");  // Edit selected button
+        JButton deleteButton = new JButton("Delete Selected"); // Delete selected button
+        JButton saveButton = new JButton("Save"); // Save button
+        JButton loadButton = new JButton("Load"); // Load button
+        JButton exitButton = new JButton("Exit"); //Exit button
 
         JPanel managePanel = new JPanel(new GridBagLayout());
         JPanel searchPanel = new JPanel(new GridBagLayout());
@@ -309,7 +273,6 @@ public class ArtWork {
                         priceValue
                 };
                 nextId[0]++;
-
                 tableModel.addRow(row);
                 updateStatus(statusLabel, tableModel);
             }
@@ -425,7 +388,7 @@ public class ArtWork {
                     newLocation = currentLocation;
                 }
 
-                // This new block of code improved the validation with edit so when something is invalid their is now an exception for
+                // This new block of code improved the validation with edit so when something is invalid there is now an exception for
                 Double newPriceValue = null;
                 while(true){
                     String newPriceInput = JOptionPane.showInputDialog(
