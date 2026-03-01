@@ -28,15 +28,65 @@ public class ArtWork {
         }
     }
 
-    private static void loadFromDatabase(DefaultTableModel tableModel, JLabel statusLabel){
+    private static void searchInDatabase(String query, DefaultTableModel tableModel, JLabel statusLabel) {
+        tableModel.setRowCount(0);
+
+        String sql = "SELECT id, title, artist, year, medium, location, price " +
+                "FROM artwork " +
+                "WHERE " +
+                "LOWER(title) LIKE ? OR " +
+                "LOWER(artist) LIKE ? OR " +
+                "LOWER(medium) LIKE ? OR " +
+                "LOWER(location) LIKE ? OR " +
+                "CAST(year AS TEXT) LIKE ? OR " +
+                "CAST(price AS TEXT) LIKE ? " +
+                "ORDER BY id;";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            String like = "%" + query.toLowerCase() + "%";
+
+            ps.setString(1, like);
+            ps.setString(2, like);
+            ps.setString(3, like);
+            ps.setString(4, like);
+            ps.setString(5, like);
+            ps.setString(6, like);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Object[] row = new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("artist"),
+                        (rs.getObject("year") == null ? null : rs.getInt("year")),
+                        rs.getString("medium"),
+                        rs.getString("location"),
+                        (rs.getObject("price") == null ? null : rs.getDouble("price"))
+                };
+                tableModel.addRow(row);
+            }
+            updateStatus(statusLabel, tableModel);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Database error while searching:\n" + e.getMessage(),
+                    "DB Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private static void loadFromDatabase(DefaultTableModel tableModel, JLabel statusLabel) {
         tableModel.setRowCount(0);
         String sql = "SELECT id, title, artist, year, medium, location, price FROM artwork ORDER BY id;";
 
-        try(Connection conn = DriverManager.getConnection(DB_URL);
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql)){
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()){
+            while (rs.next()) {
                 Object[] row = new Object[]{
                         rs.getInt("id"),
                         rs.getString("title"),
@@ -50,7 +100,7 @@ public class ArtWork {
             }
 
             updateStatus(statusLabel, tableModel);
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
                     "Database error while loading:\n" + e.getMessage(),
@@ -59,30 +109,30 @@ public class ArtWork {
         }
     }
 
-    private static void insertArtwork(String title, String artist, Integer year, String medium, String location, Double price){
+    private static void insertArtwork(String title, String artist, Integer year, String medium, String location, Double price) {
         String sql = "INSERT INTO artwork(title, artist, year, medium, location, price) " +
                 "VALUES (?, ?, ?, ?, ?, ?);";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1,title);
+            ps.setString(1, title);
             ps.setString(2, artist);
 
-            if(year == null) ps.setNull(3, Types.INTEGER);
-            else ps.setInt(3,year);
+            if (year == null) ps.setNull(3, Types.INTEGER);
+            else ps.setInt(3, year);
 
-            if(medium == null) ps.setNull(4, Types.VARCHAR);
-            else ps.setString(4,medium);
+            if (medium == null) ps.setNull(4, Types.VARCHAR);
+            else ps.setString(4, medium);
 
-            if(location == null) ps.setNull(5, Types.VARCHAR);
-            else ps.setString(5,location);
+            if (location == null) ps.setNull(5, Types.VARCHAR);
+            else ps.setString(5, location);
 
-            if(price == null) ps.setNull(6, Types.REAL);
-            else ps.setDouble(6,price);
+            if (price == null) ps.setNull(6, Types.REAL);
+            else ps.setDouble(6, price);
 
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
                     "Database insert failed:\n" + e.getMessage(),
@@ -91,52 +141,52 @@ public class ArtWork {
         }
     }
 
-    private static void deleteArtworkById(int id){
-        String sql = " DELETE FROM artwork WHERE id = ?";
+    private static void deleteArtworkById(int id) {
+        String sql = "DELETE FROM artwork WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1,id);
+            ps.setInt(1, id);
             ps.executeUpdate();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(
                     null,
-                    "Database insert failed:\n" + e.getMessage(),
+                    "Database delete failed:\n" + e.getMessage(),
                     "DB Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private static void updateArtworkById(int id, String title, String artist, Integer year, String medium, String location, Double price){
-        String sql = "UPDATE artwork SET title = ?, artist = ?, year = ?, medium = ?, location = ?, price = ?, WHERE id = ?";
+    private static void updateArtworkById(int id, String title, String artist, Integer year, String medium, String location, Double price) {
+        String sql = "UPDATE artwork SET title = ?, artist = ?, year = ?, medium = ?, location = ?, price = ? WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1,title);
+            ps.setString(1, title);
             ps.setString(2, artist);
 
-            if(year == null) ps.setNull(3, Types.INTEGER);
-            else ps.setInt(3,year);
+            if (year == null) ps.setNull(3, Types.INTEGER);
+            else ps.setInt(3, year);
 
-            if(medium == null) ps.setNull(4, Types.VARCHAR);
-            else ps.setString(4,medium);
+            if (medium == null) ps.setNull(4, Types.VARCHAR);
+            else ps.setString(4, medium);
 
-            if(location == null) ps.setNull(5, Types.VARCHAR);
-            else ps.setString(5,location);
+            if (location == null) ps.setNull(5, Types.VARCHAR);
+            else ps.setString(5, location);
 
-            if(price == null) ps.setNull(6, Types.REAL);
-            else ps.setDouble(6,price);
+            if (price == null) ps.setNull(6, Types.REAL);
+            else ps.setDouble(6, price);
 
             ps.setInt(7, id);
             ps.executeUpdate();
 
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                    "Database insert failed:\n" + e.getMessage(),
+                    "Database update failed:\n" + e.getMessage(),
                     "DB Error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -152,7 +202,7 @@ public class ArtWork {
         frame.setLocationRelativeTo(null); // Centers the window on the device
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
         // Title Label at the top of the GUI
@@ -174,7 +224,6 @@ public class ArtWork {
         JButton addButton = new JButton("Add Artwork");  // Add artwork button
         JButton editButton = new JButton("Edit Selected");  // Edit selected button
         JButton deleteButton = new JButton("Delete Selected"); // Delete selected button
-        JButton saveButton = new JButton("Save"); // Save button
         JButton loadButton = new JButton("Load"); // Load button
         JButton exitButton = new JButton("Exit"); //Exit button
 
@@ -184,7 +233,9 @@ public class ArtWork {
         GridBagConstraints m = new GridBagConstraints();
         GridBagConstraints s = new GridBagConstraints();
 
-        m.insets = new Insets(5,5,5,5);
+        m.insets = new Insets(5, 5, 5, 5);
+        m.anchor = GridBagConstraints.NORTH;
+        m.weightx = 1;
         m.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridy = 1;
@@ -200,8 +251,8 @@ public class ArtWork {
         gbc.gridwidth = 2;
         gbc.weightx = 0.5;
         frame.add(searchPanel, gbc);
-        m.gridx = 0;
 
+        m.gridx = 0;
         m.gridy = 0;
         managePanel.add(addButton, m);
 
@@ -211,19 +262,18 @@ public class ArtWork {
         m.gridy = 2;
         managePanel.add(deleteButton, m);
 
-        m.gridy = 3;
-        managePanel.add(saveButton, m);
-
         m.gridy = 4;
         managePanel.add(loadButton, m);
 
         m.gridy = 5;
         managePanel.add(exitButton, m);
 
-        s.insets = new Insets(5,5,5,5);
+        s.insets = new Insets(5, 5, 5, 5);
+        s.anchor = GridBagConstraints.NORTH;
+        s.weightx = 1;
         s.fill = GridBagConstraints.HORIZONTAL;
-        s.gridx = 0;
 
+        s.gridx = 0;
         s.gridy = 0;
         searchPanel.add(new JLabel("Search"), s);
 
@@ -246,12 +296,18 @@ public class ArtWork {
         };
 
         JTable table = new JTable(tableModel);
+        table.setShowGrid(true);
+        table.setGridColor(Color.GRAY);
+        table.setRowHeight(26);
+        table.setShowVerticalLines(true);
+        table.setShowHorizontalLines(true);
+        table.getTableHeader().setReorderingAllowed(false);
 
         // JScrollPane for table
         JScrollPane scrollPane = new JScrollPane(table);
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth =4;
+        gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -284,7 +340,7 @@ public class ArtWork {
                 if (title == null) {
                     return;
                 }
-                if (title.trim().isEmpty()){
+                if (title.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Title cannot be empty");
                     return;
                 }
@@ -294,17 +350,17 @@ public class ArtWork {
                         "Add Artwork",
                         JOptionPane.PLAIN_MESSAGE
                 );
-                if (artist == null){
+                if (artist == null) {
                     return;
                 }
-                if (artist.trim().isEmpty()){
+                if (artist.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Artist cannot be empty");
                     return;
                 }
 
                 Integer yearValue = null;
 
-                while (true){
+                while (true) {
                     String yearInput = JOptionPane.showInputDialog(
                             frame,
                             "Enter year:",
@@ -312,21 +368,20 @@ public class ArtWork {
                             JOptionPane.PLAIN_MESSAGE
                     );
 
-                    if (yearInput == null){
+                    if (yearInput == null) {
                         return;
                     }
 
                     yearInput = yearInput.trim();
 
-                    if(yearInput.isEmpty()){
-                        yearValue = null;
+                    if (yearInput.isEmpty()) {
                         break;
                     }
 
-                    try{
+                    try {
                         yearValue = Integer.parseInt(yearInput);
                         break;
-                    } catch (NumberFormatException ex){
+                    } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(
                                 frame,
                                 "Year must be a valid number",
@@ -342,11 +397,11 @@ public class ArtWork {
                         "Add Artwork",
                         JOptionPane.PLAIN_MESSAGE
                 );
-                if (medium == null){
+                if (medium == null) {
                     return;
                 }
                 medium = medium.trim();
-                if(medium.isEmpty()){
+                if (medium.isEmpty()) {
                     medium = null;
                 }
 
@@ -356,17 +411,17 @@ public class ArtWork {
                         "Add Artwork",
                         JOptionPane.PLAIN_MESSAGE
                 );
-                if(location == null){
+                if (location == null) {
                     return;
                 }
                 location = location.trim();
-                if(location.isEmpty()){
+                if (location.isEmpty()) {
                     location = null;
                 }
 
                 Double priceValue = null; // Price Validation was just fixed
 
-                while (true){
+                while (true) {
                     String priceInput = JOptionPane.showInputDialog(
                             frame,
                             "Enter price:",
@@ -374,21 +429,21 @@ public class ArtWork {
                             JOptionPane.PLAIN_MESSAGE
                     );
 
-                    if (priceInput == null){
+                    if (priceInput == null) {
                         return;
                     }
 
                     priceInput = priceInput.trim();
 
-                    if (priceInput.isEmpty()){
+                    if (priceInput.isEmpty()) {
                         priceValue = null;
                         break;
                     }
 
-                    try{
+                    try {
                         priceValue = Double.parseDouble(priceInput);
                         break;
-                    } catch (NumberFormatException ex){
+                    } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(
                                 frame,
                                 "Price must be a valid number",
@@ -429,11 +484,10 @@ public class ArtWork {
                 Object currentMediumObj = tableModel.getValueAt(selectedRow, 4);
                 Object currentLocationObj = tableModel.getValueAt(selectedRow, 5);
                 Object currentPriceObj = tableModel.getValueAt(selectedRow, 6);
-
-                String currentYear = currentYearObj == null? "": currentYearObj.toString();
-                String currentMedium = currentMediumObj == null? "": currentMediumObj.toString();
-                String currentLocation = currentLocationObj == null? "": currentLocationObj.toString();
-                String currentPrice = currentPriceObj == null? "": currentPriceObj.toString();
+                String currentYear = currentYearObj == null ? "" : currentYearObj.toString();
+                String currentMedium = currentMediumObj == null ? "" : currentMediumObj.toString();
+                String currentLocation = currentLocationObj == null ? "" : currentLocationObj.toString();
+                String currentPrice = currentPriceObj == null ? "" : currentPriceObj.toString();
 
                 // Title
                 String newTitle = JOptionPane.showInputDialog(
@@ -465,28 +519,28 @@ public class ArtWork {
 
                 Integer newYearValue = null; // Just made an exception handle for editing the year
 
-                while(true){
+                while (true) {
                     String newYearInput = JOptionPane.showInputDialog(
                             frame,
                             "Edit year (optional):",
                             currentYear
                     );
 
-                    if (newYearInput == null){
+                    if (newYearInput == null) {
                         return;
                     }
 
                     newYearInput = newYearInput.trim();
 
-                    if (newYearInput.isEmpty()){
+                    if (newYearInput.isEmpty()) {
                         newYearValue = null;
                         break;
                     }
 
-                    try{
+                    try {
                         newYearValue = Integer.parseInt(newYearInput);
                         break;
-                    }catch (NumberFormatException ex){
+                    } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(
                                 frame,
                                 "Year must be a valid number",
@@ -518,24 +572,24 @@ public class ArtWork {
 
                 // This new block of code improved the validation with edit so when something is invalid there is now an exception for
                 Double newPriceValue = null;
-                while(true){
+                while (true) {
                     String newPriceInput = JOptionPane.showInputDialog(
                             frame,
                             "Edit price (optional):",
                             currentPrice
                     );
-                    if (newPriceInput == null){
+                    if (newPriceInput == null) {
                         return;
                     }
                     newPriceInput = newPriceInput.trim();
-                    if (newPriceInput.isEmpty()){
+                    if (newPriceInput.isEmpty()) {
                         newPriceValue = null;
                         break;
                     }
-                    try{
+                    try {
                         newPriceValue = Double.parseDouble(newPriceInput);
                         break;
-                    }catch (NumberFormatException ex){
+                    } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(
                                 frame,
                                 "Price must be a valid number.",
@@ -544,7 +598,7 @@ public class ArtWork {
                         );
                     }
                 }
-                updateArtworkById(id, newTitle.trim(), newArtist.trim(), newYearValue, (newMedium.trim() .isEmpty() ? null : newMedium.trim()), (newLocation.trim().isEmpty()? null : newLocation.trim()), newPriceValue);
+                updateArtworkById(id, newTitle.trim(), newArtist.trim(), newYearValue, (newMedium.trim().isEmpty() ? null : newMedium.trim()), (newLocation.trim().isEmpty() ? null : newLocation.trim()), newPriceValue);
                 loadFromDatabase(tableModel, statusLabel);
             }
         });
@@ -580,44 +634,24 @@ public class ArtWork {
             }
         });
 
-        // Filter table by title/artist/medium
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String query = searchTextField.getText().trim();
 
-                String query = searchTextField.getText().trim().toLowerCase();
                 if (query.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Type something to search.");
                     return;
                 }
-
-                // highlight the first matching row
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    String title = (tableModel.getValueAt(i, 1) + "").toLowerCase();
-                    String artist = (tableModel.getValueAt(i, 2) + "").toLowerCase();
-                    String medium = (tableModel.getValueAt(i, 4) + "").toLowerCase();
-
-                    if (title.contains(query) || artist.contains(query) || medium.contains(query)) {
-                        table.setRowSelectionInterval(i, i);
-                        table.scrollRectToVisible(table.getCellRect(i, 0, true));
-                        return;
-                    }
-                }
-
-                JOptionPane.showMessageDialog(
-                        frame,
-                        "No artworks found for: " + query,
-                        "Search",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                searchInDatabase(query, tableModel, statusLabel);
             }
         });
 
-        // Reset table on clear
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 searchTextField.setText("");
-                table.clearSelection();
+                loadFromDatabase(tableModel, statusLabel);
             }
         });
 
@@ -628,9 +662,9 @@ public class ArtWork {
             }
         });
 
-        exitButton.addActionListener(new ActionListener(){
+        exitButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 int choice = JOptionPane.showConfirmDialog(
                         frame,
                         "Are you sure you want to exit?",
@@ -638,7 +672,7 @@ public class ArtWork {
                         JOptionPane.YES_NO_OPTION
                 );
 
-                if(choice == JOptionPane.YES_OPTION){
+                if (choice == JOptionPane.YES_OPTION) {
                     frame.dispose(); // this closes the window
                 }
             }
