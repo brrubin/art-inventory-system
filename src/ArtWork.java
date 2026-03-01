@@ -1,14 +1,68 @@
 import javax.swing.*;
+import javax.swing.plaf.nimbus.State;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class ArtWork {
 
     private static final String DB_URL = "jdbc:sqlite:db/art_inventory.db";
 
+    private static void initDatabase() {
+        String sql = "CREATE TABLE IF NOT EXISTS artwork (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "title TEXT NOT NULL," +
+                "artist TEXT NOT NULL," +
+                "year INTEGER," +
+                "medium TEXT," +
+                "location TEXT," +
+                "price REAL," +
+                "image BLOB" +
+                ");";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadFromDatabase(DefaultTableModel tableModel, JLabel statusLabel){
+        tableModel.setRowCount(0);
+        String sql = "SELECT id, title, artist, year, medium, location, price FROM artwork ORDER BY id;";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)){
+
+            while (rs.next()){
+                Object[] row = new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("artist"),
+                        (rs.getObject("year") == null ? null : rs.getInt("year")),
+                        rs.getString("medium"),
+                        rs.getString("location"),
+                        (rs.getObject("price") == null ? null : rs.getDouble("price"))
+                };
+                tableModel.addRow(row);
+            }
+
+            updateStatus(statusLabel, tableModel);
+        }catch (SQLException e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Database error while loading:\n" + e.getMessage(),
+                    "DB Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     public static void main(String[] args) {
+        initDatabase();
+
         JFrame frame = new JFrame("Art-Inventory-System"); // Title of GUI
         frame.setSize(850, 550); //Size of window
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,7 +154,6 @@ public class ArtWork {
         s.gridy = 3;
         searchPanel.add(clearButton, s);
 
-
         // Table with columns: ID, Title, Artist, Year, Medium, Location, Price
         String[] columnNames = {"ID", "Title", "Artist", "Year", "Medium", "Location", "Price"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
@@ -129,8 +182,11 @@ public class ArtWork {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0;
         gbc.weighty = 0;
+
         JLabel statusLabel = new JLabel("Total artworks: 0");
         frame.add(statusLabel, gbc);
+
+        loadFromDatabase(tableModel, statusLabel);
 
         // ID generator
         final int[] nextId ={1};
